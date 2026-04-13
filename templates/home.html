@@ -1,0 +1,327 @@
+<!-- ========================================================================= -->
+<!-- HOME.HTML - Dashboard Template (Boshqaruv Paneli Shabloni) -->
+<!-- ========================================================================= -->
+<!--
+WHAT THIS FILE DOES (BU FAYL NIMA QILADI):
+==========================================
+This is the homepage/dashboard showing:
+- Statistics cards (total employees, today's attendance)
+- Quick action buttons
+- Recent attendance records
+
+Bu asosiy sahifa/boshqaruv paneli quyidagilarni ko'rsatadi:
+- Statistika kartalari (umumiy xodimlar, bugungi davomat)
+- Tezkor harakat tugmalari
+- So'nggi davomat yozuvlari
+-->
+
+<!-- Extend the base template -->
+<!-- Asosiy shablonni kengaytirish -->
+{% extends 'base.html' %}
+
+<!-- Load static files tag (for images, CSS, JS) -->
+<!-- Statik fayllar tegini yuklash (rasmlar, CSS, JS uchun) -->
+{% load static %}
+
+<!-- Set page title -->
+<!-- Sahifa sarlavhasini belgilash -->
+{% block title %}Boshqaruv Paneli - Davomat Tizimi{% endblock %}
+
+<!-- Main content block -->
+<!-- Asosiy kontent bloki -->
+{% block content %}
+
+<!-- ===================================================================== -->
+<!-- PAGE HEADER (SAHIFA SARLAVHASI) -->
+<!-- ===================================================================== -->
+<div class="row mb-4">
+    <div class="col">
+        <!-- Page title with icon -->
+        <!-- Ikonli sahifa sarlavhasi -->
+        <h1 class="display-5">
+            <i class="bi bi-speedometer2 text-primary"></i>
+            Boshqaruv Paneli
+        </h1>
+        <!-- Subtitle showing today's date -->
+        <!-- Bugungi sanani ko'rsatadigan kichik sarlavha -->
+        <p class="text-muted">
+            <i class="bi bi-calendar3"></i>
+            Bugun: {{ today|date:"d F, Y" }} ({{ today|date:"l" }})
+        </p>
+    </div>
+</div>
+
+<!-- ===================================================================== -->
+<!-- STATISTICS CARDS (STATISTIKA KARTALARI) -->
+<!-- ===================================================================== -->
+<!--
+Bootstrap grid system:
+- row: creates a horizontal group of columns
+- col-md-3: column takes 3/12 (25%) width on medium+ screens
+- col-6: column takes 6/12 (50%) width on small screens
+
+Bootstrap grid tizimi:
+- row: gorizontal ustunlar guruhini yaratadi
+- col-md-3: o'rtacha+ ekranlarda ustun 3/12 (25%) kenglikni egallaydi
+- col-6: kichik ekranlarda ustun 6/12 (50%) kenglikni egallaydi
+-->
+<div class="row mb-4">
+    <!-- Card 1: Total Employees -->
+    <!-- Karta 1: Umumiy Xodimlar -->
+    <div class="col-md-3 col-6 mb-3">
+        <div class="card bg-primary text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-0">Xodimlar</h6>
+                        <h2 class="mb-0">{{ total_employees }}</h2>
+                    </div>
+                    <i class="bi bi-people-fill fs-1 opacity-50"></i>
+                </div>
+            </div>
+            <div class="card-footer bg-transparent border-0">
+                <a href="{% url 'employee_list' %}" class="text-white text-decoration-none small">
+                    Ko'rish <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 2: Today's Attendance -->
+    <!-- Karta 2: Bugungi Davomat -->
+    <div class="col-md-3 col-6 mb-3">
+        <div class="card bg-success text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-0">Bugun keldi</h6>
+                        <h2 class="mb-0">{{ checked_in_today }}</h2>
+                    </div>
+                    <i class="bi bi-box-arrow-in-right fs-1 opacity-50"></i>
+                </div>
+            </div>
+            <div class="card-footer bg-transparent border-0">
+                <a href="{% url 'today_attendance' %}" class="text-white text-decoration-none small">
+                    Tafsilot <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 3: Checked Out -->
+    <!-- Karta 3: Ketganlar -->
+    <div class="col-md-3 col-6 mb-3">
+        <div class="card bg-info text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-0">Bugun ketdi</h6>
+                        <h2 class="mb-0">{{ checked_out_today }}</h2>
+                    </div>
+                    <i class="bi bi-box-arrow-right fs-1 opacity-50"></i>
+                </div>
+            </div>
+            <div class="card-footer bg-transparent border-0">
+                <a href="{% url 'today_attendance' %}" class="text-white text-decoration-none small">
+                    Tafsilot <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 4: Not Arrived -->
+    <!-- Karta 4: Kelmagan -->
+    <div class="col-md-3 col-6 mb-3">
+        <div class="card bg-warning text-dark h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-0">Hali kelmagan</h6>
+                        <h2 class="mb-0">{{ not_checked_in }}</h2>
+                    </div>
+                    <i class="bi bi-person-x fs-1 opacity-50"></i>
+                </div>
+            </div>
+            <div class="card-footer bg-transparent border-0">
+                <a href="{% url 'today_attendance' %}" class="text-dark text-decoration-none small">
+                    Ko'rish <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================================================================== -->
+<!-- QUICK ACTIONS (TEZKOR HARAKATLAR) -->
+<!-- ===================================================================== -->
+<div class="row mb-4">
+    <div class="col">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">
+                    <i class="bi bi-lightning"></i>
+                    Tezkor harakatlar
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- Mark Attendance Button -->
+                    <!-- Davomat belgilash tugmasi -->
+                    <div class="col-md-4 mb-2">
+                        <a href="{% url 'mark_attendance' %}" class="btn btn-primary btn-lg w-100">
+                            <i class="bi bi-camera-fill"></i>
+                            Davomat belgilash
+                        </a>
+                    </div>
+
+                    <!-- Register Employee Button -->
+                    <!-- Xodim ro'yxatdan o'tkazish tugmasi -->
+                    <div class="col-md-4 mb-2">
+                        <a href="{% url 'register_employee' %}" class="btn btn-success btn-lg w-100">
+                            <i class="bi bi-person-plus-fill"></i>
+                            Yangi xodim
+                        </a>
+                    </div>
+
+                    <!-- View Reports Button -->
+                    <!-- Hisobotlarni ko'rish tugmasi -->
+                    <div class="col-md-4 mb-2">
+                        <a href="{% url 'attendance_list' %}" class="btn btn-info btn-lg w-100 text-white">
+                            <i class="bi bi-file-earmark-bar-graph"></i>
+                            Hisobotlar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================================================================== -->
+<!-- RECENT ATTENDANCE (SO'NGGI DAVOMAT) -->
+<!-- ===================================================================== -->
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-clock-history"></i>
+                    So'nggi davomat yozuvlari
+                </h5>
+                <a href="{% url 'attendance_list' %}" class="btn btn-sm btn-outline-primary">
+                    Barchasini ko'rish
+                </a>
+            </div>
+            <div class="card-body p-0">
+                <!-- Responsive table wrapper -->
+                <!-- Sezgir jadval o'rami -->
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Xodim</th>
+                                <th>Sana</th>
+                                <th>Kirish</th>
+                                <th>Chiqish</th>
+                                <th>Holat</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% comment %}
+                            Django template for loop:
+                            {% raw %}{% for item in list %} ... {% endfor %}{% endraw %}
+
+                            {% raw %}{% empty %}{% endraw %} - shown if list is empty
+
+                            Django shablon for sikli:
+                            {% raw %}{% for item in list %} ... {% endfor %}{% endraw %}
+                            {% raw %}{% empty %}{% endraw %} - ro'yxat bo'sh bo'lsa ko'rsatiladi
+                            {% endcomment %}
+                            {% for record in recent_attendance %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'employee_detail' record.employee.employee_id %}">
+                                        {{ record.employee.full_name }}
+                                    </a>
+                                    <br>
+                                    <small class="text-muted">{{ record.employee.employee_id }}</small>
+                                </td>
+                                <td>{{ record.date|date:"d/m/Y" }}</td>
+                                <td>
+                                    {% if record.check_in_time %}
+                                        <span class="text-success">
+                                            <i class="bi bi-box-arrow-in-right"></i>
+                                            {{ record.check_in_time|time:"H:i" }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if record.check_out_time %}
+                                        <span class="text-info">
+                                            <i class="bi bi-box-arrow-right"></i>
+                                            {{ record.check_out_time|time:"H:i" }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if record.status == 'present' %}
+                                        <span class="badge bg-success">Keldi</span>
+                                    {% elif record.status == 'late' %}
+                                        <span class="badge bg-warning text-dark">Kechikdi</span>
+                                    {% elif record.status == 'absent' %}
+                                        <span class="badge bg-danger">Kelmadi</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ record.get_status_display }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <!-- Shown when there are no records -->
+                            <!-- Yozuvlar yo'q bo'lganda ko'rsatiladi -->
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">
+                                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                    Hozircha davomat yozuvlari yo'q
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+<!-- ========================================================================= -->
+<!-- TEMPLATE TAGS USED (ISHLATILGAN SHABLON TEGLARI) -->
+<!-- ========================================================================= -->
+{% comment %}
+FILTERS (FILTRLAR):
+- {{ value|date:"d F, Y" }} - format date
+- {{ value|time:"H:i" }} - format time
+- {{ value|add:"-5" }} - subtract/add numbers
+
+TAGS (TEGLAR):
+- {% raw %}{% url 'name' %}{% endraw %} - generate URL from name
+- {% raw %}{% for item in list %}{% endraw %} - loop through list
+- {% raw %}{% if condition %}{% endraw %} - conditional rendering
+- {% raw %}{% empty %}{% endraw %} - shown if loop list is empty
+
+FILTRLAR:
+- {{ qiymat|date:"d F, Y" }} - sanani formatlash
+- {{ qiymat|time:"H:i" }} - vaqtni formatlash
+- {{ qiymat|add:"-5" }} - raqamlarni qo'shish/ayirish
+
+TEGLAR:
+- {% raw %}{% url 'nom' %}{% endraw %} - nomdan URL yaratish
+- {% raw %}{% for element in ro'yxat %}{% endraw %} - ro'yxat bo'ylab sikl
+- {% raw %}{% if shart %}{% endraw %} - shartli ko'rsatish
+- {% raw %}{% empty %}{% endraw %} - sikl ro'yxati bo'sh bo'lsa ko'rsatiladi
+{% endcomment %}

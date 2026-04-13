@@ -1,0 +1,482 @@
+<!-- ========================================================================= -->
+<!-- MARK_ATTENDANCE.HTML - Face Recognition Attendance Template -->
+<!-- ========================================================================= -->
+<!--
+WHAT THIS FILE DOES (BU FAYL NIMA QILADI):
+==========================================
+This is the main attendance page where employees:
+1. Stand in front of the camera
+2. System recognizes their face
+3. Records check-in or check-out time
+
+Bu asosiy davomat sahifasi, bu yerda xodimlar:
+1. Kamera oldida turadi
+2. Tizim ularning yuzini taniydi
+3. Kirish yoki chiqish vaqtini yozib oladi
+-->
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Davomat Belgilash - Davomat Tizimi{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Custom styles for attendance page */
+    /* Davomat sahifasi uchun maxsus uslublar */
+    .camera-container {
+        position: relative;
+        background: #000;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .camera-container video,
+    .camera-container img {
+        width: 100%;
+        height: 400px;
+        object-fit: cover;
+    }
+    .face-overlay {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 200px;
+        height: 250px;
+        border: 3px dashed rgba(255,255,255,0.5);
+        border-radius: 50% 50% 45% 45%;
+        pointer-events: none;
+    }
+    .recognition-result {
+        min-height: 150px;
+    }
+    .pulse {
+        animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="row mb-4">
+    <div class="col text-center">
+        <h1>
+            <i class="bi bi-camera-fill text-primary"></i>
+            Davomat Belgilash
+        </h1>
+        <p class="text-muted lead">
+            Yuzingizni kameraga ko'rsating va kirish/chiqishni belgilang
+        </p>
+        <!-- Current time display -->
+        <h3 id="currentTime" class="text-primary"></h3>
+    </div>
+</div>
+
+<div class="row">
+    <!-- =============================================================== -->
+    <!-- LEFT COLUMN: Camera View -->
+    <!-- CHAP USTUN: Kamera Ko'rinishi -->
+    <!-- =============================================================== -->
+    <div class="col-lg-7 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-camera-video-fill"></i>
+                    Kamera
+                </h5>
+            </div>
+            <div class="card-body">
+                <!-- Camera container -->
+                <div class="camera-container mb-3">
+                    <video id="video" autoplay playsinline></video>
+                    <!-- Face position guide overlay -->
+                    <div class="face-overlay"></div>
+                </div>
+                <canvas id="canvas" style="display:none;"></canvas>
+
+                <!-- Camera status -->
+                <div id="cameraStatus" class="alert alert-info text-center">
+                    <i class="bi bi-hourglass-split pulse"></i>
+                    Kamera yuklanmoqda...
+                </div>
+
+                <!-- Action buttons -->
+                <div class="row">
+                    <div class="col-6">
+                        <button id="checkInBtn"
+                                class="btn btn-success btn-lg w-100"
+                                disabled>
+                            <i class="bi bi-box-arrow-in-right"></i>
+                            <br>
+                            <span class="fs-5">KIRISH</span>
+                            <br>
+                            <small>Check In</small>
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button id="checkOutBtn"
+                                class="btn btn-danger btn-lg w-100"
+                                disabled>
+                            <i class="bi bi-box-arrow-right"></i>
+                            <br>
+                            <span class="fs-5">CHIQISH</span>
+                            <br>
+                            <small>Check Out</small>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =============================================================== -->
+    <!-- RIGHT COLUMN: Recognition Result -->
+    <!-- O'NG USTUN: Tanish Natijasi -->
+    <!-- =============================================================== -->
+    <div class="col-lg-5 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">
+                    <i class="bi bi-person-check"></i>
+                    Natija
+                </h5>
+            </div>
+            <div class="card-body">
+                <!-- Result display area -->
+                <div id="resultArea" class="recognition-result">
+                    <div class="text-center text-muted py-5">
+                        <i class="bi bi-person-bounding-box fs-1"></i>
+                        <p class="mt-2">Kirish yoki chiqish tugmasini bosing</p>
+                    </div>
+                </div>
+
+                <!-- Processing indicator (hidden by default) -->
+                <div id="processingIndicator" class="text-center py-4" style="display:none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Yuz tanilmoqda...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="card mt-3">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">
+                    <i class="bi bi-clock-history"></i>
+                    So'nggi faoliyat
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                <ul id="activityList" class="list-group list-group-flush">
+                    <li class="list-group-item text-muted text-center">
+                        Hozircha faoliyat yo'q
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="card mt-3 border-info">
+            <div class="card-body">
+                <h6><i class="bi bi-info-circle text-info"></i> Ko'rsatmalar:</h6>
+                <ol class="small mb-0">
+                    <li>Yuzingizni kameradagi ramkaga joylashtiring</li>
+                    <li>Yaxshi yoritilgan joyda turing</li>
+                    <li><strong>KIRISH</strong> yoki <strong>CHIQISH</strong> tugmasini bosing</li>
+                    <li>Natijani kutib turing</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/*
+ * ==========================================================================
+ * ATTENDANCE PAGE JAVASCRIPT (DAVOMAT SAHIFASI JAVASCRIPT)
+ * ==========================================================================
+ *
+ * This script handles:
+ * 1. Webcam access and display
+ * 2. Capturing face image
+ * 3. Sending to server for recognition
+ * 4. Displaying results
+ * 5. Real-time clock
+ *
+ * Bu skript quyidagilarni boshqaradi:
+ * 1. Veb-kamera kirishi va ko'rsatilishi
+ * 2. Yuz rasmini olish
+ * 3. Tanish uchun serverga yuborish
+ * 4. Natijalarni ko'rsatish
+ * 5. Real vaqt soati
+ */
+
+// DOM elements
+const video = document.getElementById('video');
+const canvas = document.getElementById('canvas');
+const checkInBtn = document.getElementById('checkInBtn');
+const checkOutBtn = document.getElementById('checkOutBtn');
+const cameraStatus = document.getElementById('cameraStatus');
+const resultArea = document.getElementById('resultArea');
+const processingIndicator = document.getElementById('processingIndicator');
+const activityList = document.getElementById('activityList');
+const currentTimeDisplay = document.getElementById('currentTime');
+
+let stream = null;
+
+/**
+ * Update clock display
+ * Soat ko'rsatishini yangilash
+ */
+function updateClock() {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('uz-UZ', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
+    const dateString = now.toLocaleDateString('uz-UZ', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    currentTimeDisplay.innerHTML = `
+        <i class="bi bi-clock"></i> ${timeString}
+        <br>
+        <small class="text-muted">${dateString}</small>
+    `;
+}
+
+/**
+ * Start webcam
+ * Veb-kamerani ishga tushirish
+ */
+async function startCamera() {
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+                width: { ideal: 640 },
+                height: { ideal: 480 },
+                facingMode: 'user'
+            }
+        });
+
+        video.srcObject = stream;
+
+        // Enable buttons when camera is ready
+        // Kamera tayyor bo'lganda tugmalarni yoqish
+        video.onloadedmetadata = () => {
+            cameraStatus.innerHTML = '<i class="bi bi-check-circle text-success"></i> Kamera tayyor!';
+            cameraStatus.className = 'alert alert-success text-center';
+            checkInBtn.disabled = false;
+            checkOutBtn.disabled = false;
+        };
+
+    } catch (error) {
+        console.error('Camera error:', error);
+        cameraStatus.innerHTML = `
+            <i class="bi bi-exclamation-triangle text-danger"></i>
+            Kameraga kirish imkoni yo'q!
+            <br><small>${error.message}</small>
+        `;
+        cameraStatus.className = 'alert alert-danger text-center';
+    }
+}
+
+/**
+ * Capture photo from video
+ * Videodan rasm olish
+ */
+function capturePhoto() {
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const context = canvas.getContext('2d');
+    context.drawImage(video, 0, 0);
+    return canvas.toDataURL('image/jpeg', 0.8);
+}
+
+/**
+ * Process attendance (check-in or check-out)
+ * Davomatni qayta ishlash (kirish yoki chiqish)
+ *
+ * @param {string} action - 'check_in' or 'check_out'
+ */
+async function processAttendance(action) {
+    // Disable buttons during processing
+    // Qayta ishlash paytida tugmalarni o'chirish
+    checkInBtn.disabled = true;
+    checkOutBtn.disabled = true;
+
+    // Show processing indicator
+    // Qayta ishlash ko'rsatkichini ko'rsatish
+    resultArea.style.display = 'none';
+    processingIndicator.style.display = 'block';
+
+    try {
+        // Capture photo
+        // Rasm olish
+        const faceImage = capturePhoto();
+
+        // Send to server
+        // Serverga yuborish
+        //
+        // fetch() - modern way to make HTTP requests
+        // fetch() - HTTP so'rovlar qilishning zamonaviy usuli
+        const response = await fetch('{% url "process_attendance" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                face_image: faceImage,
+                action: action
+            })
+        });
+
+        const data = await response.json();
+
+        // Hide processing indicator
+        // Qayta ishlash ko'rsatkichini yashirish
+        processingIndicator.style.display = 'none';
+        resultArea.style.display = 'block';
+
+        // Display result
+        // Natijani ko'rsatish
+        if (data.success) {
+            // Success - show employee info
+            // Muvaffaqiyat - xodim ma'lumotlarini ko'rsatish
+            resultArea.innerHTML = `
+                <div class="alert alert-success">
+                    <h5><i class="bi bi-check-circle-fill"></i> Muvaffaqiyatli!</h5>
+                    <p class="mb-0">${data.message}</p>
+                </div>
+                ${data.employee ? `
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h5><i class="bi bi-person-fill"></i> ${data.employee.name}</h5>
+                        <p class="mb-1"><small class="text-muted">ID: ${data.employee.employee_id}</small></p>
+                        ${data.employee.department ? `<p class="mb-1"><i class="bi bi-building"></i> ${data.employee.department}</p>` : ''}
+                        <p class="mb-0"><i class="bi bi-clock"></i> ${data.employee.time || data.employee.check_out || ''}</p>
+                        ${data.employee.duration ? `<p class="mb-0"><i class="bi bi-hourglass"></i> ${data.employee.duration}</p>` : ''}
+                    </div>
+                </div>
+                ` : ''}
+            `;
+
+            // Add to activity list
+            // Faoliyat ro'yxatiga qo'shish
+            addToActivityList(data.employee, action);
+
+        } else {
+            // Error - show message
+            // Xato - xabarni ko'rsatish
+            resultArea.innerHTML = `
+                <div class="alert alert-danger">
+                    <h5><i class="bi bi-x-circle-fill"></i> Xatolik!</h5>
+                    <p class="mb-0">${data.message}</p>
+                </div>
+            `;
+        }
+
+    } catch (error) {
+        // Network or other error
+        // Tarmoq yoki boshqa xato
+        console.error('Error:', error);
+        processingIndicator.style.display = 'none';
+        resultArea.style.display = 'block';
+        resultArea.innerHTML = `
+            <div class="alert alert-danger">
+                <h5><i class="bi bi-exclamation-triangle"></i> Xatolik!</h5>
+                <p class="mb-0">Server bilan aloqa yo'q: ${error.message}</p>
+            </div>
+        `;
+    }
+
+    // Re-enable buttons
+    // Tugmalarni qayta yoqish
+    checkInBtn.disabled = false;
+    checkOutBtn.disabled = false;
+}
+
+/**
+ * Add entry to activity list
+ * Faoliyat ro'yxatiga yozuv qo'shish
+ */
+function addToActivityList(employee, action) {
+    if (!employee) return;
+
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' });
+
+    const actionText = action === 'check_in' ? 'Kirdi' : 'Chiqdi';
+    const actionClass = action === 'check_in' ? 'text-success' : 'text-danger';
+    const actionIcon = action === 'check_in' ? 'box-arrow-in-right' : 'box-arrow-right';
+
+    // Create new list item
+    // Yangi ro'yxat elementi yaratish
+    const li = document.createElement('li');
+    li.className = 'list-group-item';
+    li.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <i class="bi bi-${actionIcon} ${actionClass}"></i>
+                <strong>${employee.name}</strong>
+                <span class="badge bg-${action === 'check_in' ? 'success' : 'danger'}">${actionText}</span>
+            </div>
+            <small class="text-muted">${timeStr}</small>
+        </div>
+    `;
+
+    // Remove "no activity" message if present
+    // Agar mavjud bo'lsa "faoliyat yo'q" xabarini olib tashlash
+    const emptyMessage = activityList.querySelector('.text-muted.text-center');
+    if (emptyMessage) {
+        emptyMessage.parentElement.remove();
+    }
+
+    // Add to top of list
+    // Ro'yxat boshiga qo'shish
+    activityList.insertBefore(li, activityList.firstChild);
+
+    // Keep only last 5 entries
+    // Faqat oxirgi 5 ta yozuvni saqlash
+    while (activityList.children.length > 5) {
+        activityList.removeChild(activityList.lastChild);
+    }
+}
+
+// Event listeners
+// Hodisa tinglovchilari
+checkInBtn.addEventListener('click', () => processAttendance('check_in'));
+checkOutBtn.addEventListener('click', () => processAttendance('check_out'));
+
+// Initialize on page load
+// Sahifa yuklanganda ishga tushirish
+document.addEventListener('DOMContentLoaded', () => {
+    startCamera();
+    updateClock();
+    // Update clock every second
+    // Har sekundda soatni yangilash
+    setInterval(updateClock, 1000);
+});
+
+// Clean up on page leave
+// Sahifadan chiqishda tozalash
+window.addEventListener('beforeunload', () => {
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+    }
+});
+</script>
+{% endblock %}

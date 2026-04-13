@@ -1,0 +1,317 @@
+/* ============================================================================
+ * STYLE.CSS - Custom Styles for Face Attendance System
+ * ============================================================================
+ *
+ * WHAT THIS FILE DOES (BU FAYL NIMA QILADI):
+ * ------------------------------------------
+ * This file contains custom CSS styles that supplement Bootstrap.
+ * We keep it minimal since Bootstrap handles most styling.
+ *
+ * Bu fayl Bootstrap ni to'ldiradigan maxsus CSS uslublarni o'z ichiga oladi.
+ * Bootstrap ko'p uslublarni boshqargani uchun biz uni minimal tutamiz.
+ *
+ * ============================================================================
+ */
+
+/* ---------------------------------------------------------------------------
+ * ROOT VARIABLES (O'ZGARUVCHILAR)
+ * ---------------------------------------------------------------------------
+ * CSS custom properties (variables) for consistent theming.
+ * Barqaror mavzu uchun CSS maxsus xususiyatlar (o'zgaruvchilar).
+ */
+:root {
+    --primary-color: #0d6efd;
+    --success-color: #198754;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #0dcaf0;
+}
+
+/* ---------------------------------------------------------------------------
+ * BODY STYLES (BODY USLUBLARI)
+ * ---------------------------------------------------------------------------
+ */
+body {
+    /* Minimum height for sticky footer */
+    /* Yopishqoq footer uchun minimal balandlik */
+    min-height: 100vh;
+
+    /* Flexbox layout for sticky footer */
+    /* Yopishqoq footer uchun Flexbox joylashuv */
+    display: flex;
+    flex-direction: column;
+
+    /* Background color */
+    /* Fon rangi */
+    background-color: #f8f9fa;
+}
+
+/* Main content area should expand */
+/* Asosiy kontent maydoni kengayishi kerak */
+main {
+    flex: 1;
+}
+
+/* ---------------------------------------------------------------------------
+ * CARD STYLES (KARTA USLUBLARI)
+ * ---------------------------------------------------------------------------
+ */
+.card {
+    /* Subtle shadow for depth */
+    /* Chuqurlik uchun nozik soya */
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+
+    /* Smooth transition for hover effects */
+    /* Hover effektlari uchun silliq o'tish */
+    transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+    /* Slightly stronger shadow on hover */
+    /* Hoverda biroz kuchliroq soya */
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    /* Consistent header styling */
+    /* Barqaror header uslubi */
+    font-weight: 500;
+}
+
+/* ---------------------------------------------------------------------------
+ * BUTTON STYLES (TUGMA USLUBLARI)
+ * ---------------------------------------------------------------------------
+ */
+.btn {
+    /* Smooth transitions */
+    /* Silliq o'tishlar */
+    transition: all 0.2s ease;
+}
+
+.btn-lg {
+    /* Larger padding for prominent buttons */
+    /* Ko'zga ko'rinadigan tugmalar uchun kattaroq padding */
+    padding: 0.75rem 1.5rem;
+}
+
+/* ---------------------------------------------------------------------------
+ * TABLE STYLES (JADVAL USLUBLARI)
+ * ---------------------------------------------------------------------------
+ */
+.table {
+    /* Consistent vertical alignment */
+    /* Barqaror vertikal joylashuv */
+    vertical-align: middle;
+}
+
+.table th {
+    /* Slightly bolder headers */
+    /* Biroz qalinroq sarlavhalar */
+    font-weight: 600;
+}
+
+.table-hover tbody tr:hover {
+    /* Highlight color on hover */
+    /* Hoverda ajratish rangi */
+    background-color: rgba(13, 110, 253, 0.05);
+}
+
+/* ---------------------------------------------------------------------------
+ * NAVBAR STYLES (NAVBAR USLUBLARI)
+ * ---------------------------------------------------------------------------
+ */
+.navbar {
+    /* Subtle shadow under navbar */
+    /* Navbar ostida nozik soya */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    /* Brand text styling */
+    /* Brand matn uslubi */
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+/* ---------------------------------------------------------------------------
+ * BADGE STYLES (NISHON USLUBLARI)
+ * ---------------------------------------------------------------------------
+ */
+.badge {
+    /* Consistent badge styling */
+    /* Barqaror nishon uslubi */
+    font-weight: 500;
+    padding: 0.4em 0.8em;
+}
+
+/* ---------------------------------------------------------------------------
+ * ALERT STYLES (OGOHLANTIRISH USLUBLARI)
+ * ---------------------------------------------------------------------------
+ */
+.alert {
+    /* Border styling */
+    /* Chegara uslubi */
+    border-width: 0;
+    border-left-width: 4px;
+}
+
+/* ---------------------------------------------------------------------------
+ * CAMERA/VIDEO STYLES (KAMERA/VIDEO USLUBLARI)
+ * ---------------------------------------------------------------------------
+ */
+video {
+    /* Ensure video doesn't overflow */
+    /* Video toshib ketmasligi uchun */
+    max-width: 100%;
+    height: auto;
+
+    /* Rounded corners to match cards */
+    /* Kartalarga mos dumaloq burchaklar */
+    border-radius: 0.375rem;
+
+    /* Background while loading */
+    /* Yuklanayotganda fon */
+    background: #000;
+}
+
+#canvas {
+    /* Canvas should be hidden but accessible */
+    /* Canvas yashirin lekin kirish mumkin bo'lishi kerak */
+    display: none;
+}
+
+/* ---------------------------------------------------------------------------
+ * FORM STYLES (FORMA USLUBLARI)
+ * ---------------------------------------------------------------------------
+ */
+.form-label {
+    /* Label styling */
+    /* Label uslubi */
+    font-weight: 500;
+    margin-bottom: 0.375rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+    /* Focus state */
+    /* Fokus holati */
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* ---------------------------------------------------------------------------
+ * UTILITY CLASSES (YORDAMCHI KLASSLAR)
+ * ---------------------------------------------------------------------------
+ */
+
+/* Text truncation for long content */
+/* Uzun kontent uchun matn qisqartirish */
+.text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Pulse animation for loading states */
+/* Yuklanish holatlari uchun puls animatsiyasi */
+.pulse {
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* Fade in animation */
+/* Kirib kelish animatsiyasi */
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ---------------------------------------------------------------------------
+ * RESPONSIVE STYLES (SEZGIR USLUBLAR)
+ * ---------------------------------------------------------------------------
+ */
+
+/* Mobile-specific styles */
+/* Mobil uchun maxsus uslublar */
+@media (max-width: 768px) {
+    /* Smaller headings on mobile */
+    /* Mobileda kichikroq sarlavhalar */
+    h1 {
+        font-size: 1.75rem;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+    }
+
+    /* Full-width buttons on mobile */
+    /* Mobileda to'liq kenglikdagi tugmalar */
+    .btn-lg {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Smaller card padding on mobile */
+    /* Mobileda kichikroq karta padding */
+    .card-body {
+        padding: 1rem;
+    }
+}
+
+/* Print styles */
+/* Chop etish uslublari */
+@media print {
+    /* Hide navigation and footer when printing */
+    /* Chop etishda navigatsiya va footerni yashirish */
+    .navbar,
+    footer,
+    .btn,
+    .no-print {
+        display: none !important;
+    }
+
+    /* Remove shadows for printing */
+    /* Chop etish uchun soyalarni olib tashlash */
+    .card {
+        box-shadow: none;
+        border: 1px solid #dee2e6;
+    }
+}
+
+/* ---------------------------------------------------------------------------
+ * END OF STYLES (USLUBLAR OXIRI)
+ * ---------------------------------------------------------------------------
+ *
+ * This file provides:
+ * - Consistent styling across the application
+ * - Custom animations for better UX
+ * - Responsive design for all screen sizes
+ * - Print-friendly styles
+ *
+ * Bu fayl taqdim etadi:
+ * - Ilova bo'ylab barqaror uslub
+ * - Yaxshiroq UX uchun maxsus animatsiyalar
+ * - Barcha ekran o'lchamlari uchun sezgir dizayn
+ * - Chop etishga qulay uslublar
+ *
+ * ---------------------------------------------------------------------------
+ */

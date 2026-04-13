@@ -1,0 +1,279 @@
+{% comment %}
+=========================================================================
+BASE.HTML - Base Template (Asosiy Shablon)
+=========================================================================
+
+WHAT THIS FILE DOES (BU FAYL NIMA QILADI):
+==========================================
+This is the base template that all other templates extend.
+It contains common HTML structure like header, navigation, and footer.
+
+Bu barcha boshqa shablonlar kengaytiradigan asosiy shablon.
+U header, navigatsiya va footer kabi umumiy HTML tuzilmasini o'z ichiga oladi.
+
+TEMPLATE INHERITANCE (SHABLON MEROSI):
+======================================
+Django uses template inheritance to avoid code duplication.
+- This file defines the base structure
+- Other templates extend this using extends 'base.html'
+- They override specific blocks using block name / endblock
+
+Django kod takrorlanishini oldini olish uchun shablon merosidan foydalanadi.
+- Bu fayl asosiy tuzilmani belgilaydi
+- Boshqa shablonlar buni extends 'base.html' yordamida kengaytiradi
+- Ular block name / endblock yordamida muayyan bloklarni qayta yozadi
+{% endcomment %}
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <!-- ===================================================================== -->
+    <!-- META TAGS (META TEGLAR) -->
+    <!-- ===================================================================== -->
+
+    <!-- Character encoding - allows Uzbek and other characters -->
+    <!-- Belgilar kodlashi - O'zbek va boshqa belgilarga ruxsat beradi -->
+    <meta charset="UTF-8">
+
+    <!-- Responsive viewport for mobile devices -->
+    <!-- Mobil qurilmalar uchun sezgir viewport -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Page description for SEO -->
+    <!-- SEO uchun sahifa tavsifi -->
+    <meta name="description" content="Yuz tanish texnologiyasi asosida davomat tizimi">
+
+    <!-- Page title - can be overridden by child templates -->
+    <!-- Sahifa sarlavhasi - bolalar shablonlari tomonidan qayta yozilishi mumkin -->
+    <title>{% block title %}Davomat Tizimi{% endblock %}</title>
+
+    <!-- ===================================================================== -->
+    <!-- CSS STYLES (CSS USLUBLAR) -->
+    <!-- ===================================================================== -->
+
+    <!-- Bootstrap 5 CSS - UI framework for styling -->
+    <!-- Bootstrap 5 CSS - styling uchun UI framework -->
+    <!-- CDN = Content Delivery Network - loads from remote server -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons - icon library -->
+    <!-- Bootstrap Icons - ikonlar kutubxonasi -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Custom CSS - our own styles -->
+    <!-- Maxsus CSS - bizning o'z uslublarimiz -->
+    {% load static %}
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+
+    <!-- Extra CSS block - child templates can add more CSS here -->
+    <!-- Qo'shimcha CSS bloki - bolalar shablonlari bu yerga ko'proq CSS qo'shishi mumkin -->
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <!-- ===================================================================== -->
+    <!-- NAVIGATION BAR (NAVIGATSIYA PANELI) -->
+    <!-- ===================================================================== -->
+    <!--
+    Bootstrap navbar component:
+    - navbar: main navbar class
+    - navbar-expand-lg: collapse on small screens, expand on large
+    - navbar-dark bg-primary: dark text on primary color background
+
+    Bootstrap navbar komponenti:
+    - navbar: asosiy navbar klassi
+    - navbar-expand-lg: kichik ekranlarda yig'iladi, kattada kengayadi
+    - navbar-dark bg-primary: primary rang fonida qora matn
+    -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <!-- Brand/Logo - links to home page -->
+            <!-- Brand/Logo - asosiy sahifaga havola -->
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <i class="bi bi-person-bounding-box"></i>
+                Davomat Tizimi
+            </a>
+
+            <!-- Mobile toggle button (hamburger menu) -->
+            <!-- Mobil almashtirish tugmasi (hamburger menyusi) -->
+            <button class="navbar-toggler" type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Collapsible navigation links -->
+            <!-- Yig'iladigan navigatsiya havolalari -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <!-- Home link -->
+                    <!-- Asosiy sahifa havolasi -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}">
+                            <i class="bi bi-house"></i> Bosh sahifa
+                        </a>
+                    </li>
+
+                    <!-- Mark Attendance link -->
+                    <!-- Davomat belgilash havolasi -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'mark_attendance' %}">
+                            <i class="bi bi-camera"></i> Davomat
+                        </a>
+                    </li>
+
+                    <!-- Employees dropdown -->
+                    <!-- Xodimlar dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#"
+                           data-bs-toggle="dropdown">
+                            <i class="bi bi-people"></i> Xodimlar
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'employee_list' %}">
+                                    <i class="bi bi-list"></i> Ro'yxat
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'register_employee' %}">
+                                    <i class="bi bi-person-plus"></i> Ro'yxatdan o'tkazish
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- Reports dropdown -->
+                    <!-- Hisobotlar dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#"
+                           data-bs-toggle="dropdown">
+                            <i class="bi bi-file-earmark-text"></i> Hisobotlar
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'today_attendance' %}">
+                                    <i class="bi bi-calendar-day"></i> Bugungi davomat
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'attendance_list' %}">
+                                    <i class="bi bi-calendar-range"></i> Barcha davomat
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <!-- Right side - Admin link -->
+                <!-- O'ng tomon - Admin havolasi -->
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/" target="_blank">
+                            <i class="bi bi-gear"></i> Admin
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ===================================================================== -->
+    <!-- MESSAGES (XABARLAR) -->
+    <!-- ===================================================================== -->
+    <!--
+    Django messages framework displays flash messages here.
+    Messages are set in views using messages.success(), messages.error(), etc.
+
+    Django xabarlar frameworki flash xabarlarni bu yerda ko'rsatadi.
+    Xabarlar viewlarda messages.success(), messages.error() va h.k. yordamida belgilanadi.
+    -->
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+        <!-- Bootstrap alert component -->
+        <!-- Bootstrap ogohlantirish komponenti -->
+        <!--
+        message.tags contains the message type (success, error, warning, info)
+        Bootstrap uses: alert-success, alert-danger, alert-warning, alert-info
+        -->
+        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <!-- Close button -->
+            <!-- Yopish tugmasi -->
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- ===================================================================== -->
+    <!-- MAIN CONTENT (ASOSIY KONTENT) -->
+    <!-- ===================================================================== -->
+    <main class="container my-4">
+        {% block content %}
+        <!-- Child templates will override this -->
+        <!-- Bolalar shablonlari buni qayta yozadi -->
+        {% endblock %}
+    </main>
+
+    <!-- ===================================================================== -->
+    <!-- FOOTER (PASTKI QISM) -->
+    <!-- ===================================================================== -->
+    <footer class="bg-light py-4 mt-auto">
+        <div class="container text-center">
+            <p class="mb-1">
+                <i class="bi bi-person-bounding-box"></i>
+                <strong>Yuz Tanish Davomat Tizimi</strong>
+            </p>
+            <p class="text-muted small mb-0">
+                OpenCV va Django asosida yaratilgan |
+                <i class="bi bi-book"></i> O'quv loyihasi
+            </p>
+        </div>
+    </footer>
+
+    <!-- ===================================================================== -->
+    <!-- JAVASCRIPT (JAVASCRIPT) -->
+    <!-- ===================================================================== -->
+
+    <!-- Bootstrap 5 JavaScript bundle (includes Popper.js) -->
+    <!-- Bootstrap 5 JavaScript to'plami (Popper.js ni o'z ichiga oladi) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Extra JavaScript block - child templates can add more JS here -->
+    <!-- Qo'shimcha JavaScript bloki - bolalar shablonlari bu yerga ko'proq JS qo'shishi mumkin -->
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
+
+{% comment %}
+=========================================================================
+TEMPLATE INHERITANCE EXAMPLE (SHABLON MEROSI MISOLI)
+=========================================================================
+
+HOW CHILD TEMPLATES USE THIS:
+=============================
+
+extends 'base.html'
+
+block title - My Page Title - endblock
+
+block content
+<h1>My Page Content</h1>
+<p>This content replaces the content block.</p>
+endblock
+
+block extra_js
+<script>
+    // Custom JavaScript for this page
+</script>
+endblock
+
+BOLALAR SHABLONLARI BUNI QANDAY ISHLATADI:
+==========================================
+
+extends 'base.html' - bu shablonni kengaytiradi
+block title - sarlavha blokini qayta yozadi
+block content - kontent blokini qayta yozadi
+block extra_js - qo'shimcha JavaScript qo'shadi
+{% endcomment %}

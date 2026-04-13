@@ -1,0 +1,164 @@
+<!-- ========================================================================= -->
+<!-- EMPLOYEE_DETAIL.HTML - Employee Detail Template -->
+<!-- ========================================================================= -->
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ employee.full_name }} - Davomat Tizimi{% endblock %}
+
+{% block content %}
+
+<!-- Back button -->
+<div class="mb-3">
+    <a href="{% url 'employee_list' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Orqaga
+    </a>
+</div>
+
+<div class="row">
+    <!-- Employee Info Card -->
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <!-- Photo -->
+                {% if employee.photo %}
+                <img src="{{ employee.photo.url }}"
+                     alt="{{ employee.full_name }}"
+                     class="rounded-circle mb-3"
+                     style="width: 150px; height: 150px; object-fit: cover;">
+                {% else %}
+                <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center mx-auto mb-3"
+                     style="width: 150px; height: 150px;">
+                    <i class="bi bi-person fs-1"></i>
+                </div>
+                {% endif %}
+
+                <h3>{{ employee.full_name }}</h3>
+                <p class="text-muted">{{ employee.employee_id }}</p>
+
+                {% if employee.is_active %}
+                <span class="badge bg-success">Faol</span>
+                {% else %}
+                <span class="badge bg-danger">Nofaol</span>
+                {% endif %}
+            </div>
+            <ul class="list-group list-group-flush">
+                {% if employee.department %}
+                <li class="list-group-item">
+                    <i class="bi bi-building"></i> <strong>Bo'lim:</strong> {{ employee.department }}
+                </li>
+                {% endif %}
+                {% if employee.position %}
+                <li class="list-group-item">
+                    <i class="bi bi-briefcase"></i> <strong>Lavozim:</strong> {{ employee.position }}
+                </li>
+                {% endif %}
+                {% if employee.email %}
+                <li class="list-group-item">
+                    <i class="bi bi-envelope"></i> <strong>Email:</strong>
+                    <a href="mailto:{{ employee.email }}">{{ employee.email }}</a>
+                </li>
+                {% endif %}
+                <li class="list-group-item">
+                    <i class="bi bi-calendar"></i> <strong>Qo'shilgan:</strong> {{ employee.created_at|date:"d/m/Y" }}
+                </li>
+            </ul>
+        </div>
+
+        <!-- Statistics Card -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Statistika</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6 mb-3">
+                        <h3 class="text-primary">{{ total_days }}</h3>
+                        <small>Jami kun</small>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <h3 class="text-success">{{ present_days }}</h3>
+                        <small>O'z vaqtida</small>
+                    </div>
+                    <div class="col-6">
+                        <h3 class="text-warning">{{ late_days }}</h3>
+                        <small>Kechikkan</small>
+                    </div>
+                    <div class="col-6">
+                        <h3 class="text-danger">{{ absent_days }}</h3>
+                        <small>Kelmagan</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attendance History -->
+    <div class="col-md-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-clock-history"></i>
+                    Davomat tarixi
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Sana</th>
+                                <th>Kirish</th>
+                                <th>Chiqish</th>
+                                <th>Davomiylik</th>
+                                <th>Holat</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in attendances %}
+                            <tr>
+                                <td>{{ record.date|date:"d/m/Y" }}</td>
+                                <td>
+                                    {% if record.check_in_time %}
+                                    <span class="text-success">{{ record.check_in_time|time:"H:i" }}</span>
+                                    {% else %}
+                                    <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if record.check_out_time %}
+                                    <span class="text-info">{{ record.check_out_time|time:"H:i" }}</span>
+                                    {% else %}
+                                    <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ record.get_work_duration }}</td>
+                                <td>
+                                    {% if record.status == 'present' %}
+                                    <span class="badge bg-success">Keldi</span>
+                                    {% elif record.status == 'late' %}
+                                    <span class="badge bg-warning text-dark">Kechikdi</span>
+                                    {% elif record.status == 'absent' %}
+                                    <span class="badge bg-danger">Kelmadi</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">{{ record.get_status_display }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">
+                                    Davomat yozuvlari yo'q
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

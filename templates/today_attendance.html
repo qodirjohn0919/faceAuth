@@ -1,0 +1,142 @@
+<!-- ========================================================================= -->
+<!-- TODAY_ATTENDANCE.HTML - Today's Attendance Overview Template -->
+<!-- ========================================================================= -->
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Bugungi Davomat - Davomat Tizimi{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1>
+            <i class="bi bi-calendar-day text-primary"></i>
+            Bugungi Davomat
+        </h1>
+        <p class="text-muted lead">
+            {{ today|date:"d F, Y" }} ({{ today|date:"l" }})
+        </p>
+    </div>
+    <div class="col-md-4 text-md-end">
+        <a href="{% url 'mark_attendance' %}" class="btn btn-primary btn-lg">
+            <i class="bi bi-camera"></i>
+            Davomat belgilash
+        </a>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row mb-4">
+    <div class="col-md-4 mb-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <h2>{{ total_employees }}</h2>
+                <p class="mb-0">Jami xodimlar</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <h2>{{ checked_in }}</h2>
+                <p class="mb-0">Kelganlar</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card bg-warning text-dark">
+            <div class="card-body text-center">
+                <h2>{{ not_arrived }}</h2>
+                <p class="mb-0">Hali kelmaganlar</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Attendance Table -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="bi bi-list-check"></i>
+            Barcha xodimlar holati
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Xodim</th>
+                        <th>Bo'lim</th>
+                        <th>Kirish</th>
+                        <th>Chiqish</th>
+                        <th>Holat</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in employee_attendance %}
+                    <tr class="{% if not item.check_in %}table-warning{% endif %}">
+                        <td>{{ forloop.counter }}</td>
+                        <td>
+                            <a href="{% url 'employee_detail' item.employee.employee_id %}">
+                                {{ item.employee.full_name }}
+                            </a>
+                            <br>
+                            <small class="text-muted">{{ item.employee.employee_id }}</small>
+                        </td>
+                        <td>{{ item.employee.department|default:"-" }}</td>
+                        <td>
+                            {% if item.check_in %}
+                            <span class="text-success">
+                                <i class="bi bi-check-circle"></i>
+                                {{ item.check_in|time:"H:i" }}
+                            </span>
+                            {% else %}
+                            <span class="text-muted">
+                                <i class="bi bi-clock"></i>
+                                Kutilmoqda
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if item.check_out %}
+                            <span class="text-info">
+                                <i class="bi bi-check-circle"></i>
+                                {{ item.check_out|time:"H:i" }}
+                            </span>
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if item.attendance %}
+                                {% if item.attendance.status == 'present' %}
+                                <span class="badge bg-success">Keldi</span>
+                                {% elif item.attendance.status == 'late' %}
+                                <span class="badge bg-warning text-dark">Kechikdi</span>
+                                {% else %}
+                                <span class="badge bg-secondary">{{ item.attendance.get_status_display }}</span>
+                                {% endif %}
+                            {% else %}
+                            <span class="badge bg-light text-dark">Kutilmoqda</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">
+                            Xodimlar topilmadi
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

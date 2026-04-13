@@ -1,0 +1,158 @@
+<!-- ========================================================================= -->
+<!-- ATTENDANCE_LIST.HTML - Attendance Records Template -->
+<!-- ========================================================================= -->
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Davomat Hisobotlari - Davomat Tizimi{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="row mb-4">
+    <div class="col">
+        <h1>
+            <i class="bi bi-file-earmark-bar-graph text-primary"></i>
+            Davomat Hisobotlari
+        </h1>
+        <p class="text-muted">Barcha davomat yozuvlarini filtrlash va ko'rish</p>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <!-- Date filter -->
+            <div class="col-md-3">
+                <label class="form-label">Sana</label>
+                <input type="date"
+                       name="date"
+                       class="form-control"
+                       value="{{ filter_date }}">
+            </div>
+
+            <!-- Employee filter -->
+            <div class="col-md-3">
+                <label class="form-label">Xodim ID</label>
+                <input type="text"
+                       name="employee_id"
+                       class="form-control"
+                       placeholder="EMP001"
+                       value="{{ filter_employee }}">
+            </div>
+
+            <!-- Status filter -->
+            <div class="col-md-3">
+                <label class="form-label">Holat</label>
+                <select name="status" class="form-select">
+                    <option value="">Barchasi</option>
+                    {% for value, display in status_choices %}
+                    <option value="{{ value }}" {% if filter_status == value %}selected{% endif %}>
+                        {{ display }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Filter buttons -->
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="bi bi-funnel"></i> Filtrlash
+                </button>
+                <a href="{% url 'attendance_list' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-x"></i> Tozalash
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Attendance Table -->
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Xodim</th>
+                        <th>Sana</th>
+                        <th>Kirish</th>
+                        <th>Chiqish</th>
+                        <th>Davomiylik</th>
+                        <th>Holat</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in attendances %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'employee_detail' record.employee.employee_id %}">
+                                {{ record.employee.full_name }}
+                            </a>
+                            <br>
+                            <small class="text-muted">{{ record.employee.employee_id }}</small>
+                        </td>
+                        <td>{{ record.date|date:"d/m/Y" }}</td>
+                        <td>
+                            {% if record.check_in_time %}
+                            <span class="text-success">
+                                <i class="bi bi-box-arrow-in-right"></i>
+                                {{ record.check_in_time|time:"H:i" }}
+                            </span>
+                            {% if record.is_late %}
+                            <span class="badge bg-warning text-dark ms-1">Kech</span>
+                            {% endif %}
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if record.check_out_time %}
+                            <span class="text-info">
+                                <i class="bi bi-box-arrow-right"></i>
+                                {{ record.check_out_time|time:"H:i" }}
+                            </span>
+                            {% if record.left_early %}
+                            <span class="badge bg-info ms-1">Erta</span>
+                            {% endif %}
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <small>{{ record.get_work_duration }}</small>
+                        </td>
+                        <td>
+                            {% if record.status == 'present' %}
+                            <span class="badge bg-success">Keldi</span>
+                            {% elif record.status == 'late' %}
+                            <span class="badge bg-warning text-dark">Kechikdi</span>
+                            {% elif record.status == 'absent' %}
+                            <span class="badge bg-danger">Kelmadi</span>
+                            {% elif record.status == 'half_day' %}
+                            <span class="badge bg-info">Yarim kun</span>
+                            {% else %}
+                            <span class="badge bg-secondary">{{ record.get_status_display }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-5">
+                            <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                            Davomat yozuvlari topilmadi
+                            {% if filter_date or filter_employee or filter_status %}
+                            <br><small>Filtrlarni o'zgartirib ko'ring</small>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

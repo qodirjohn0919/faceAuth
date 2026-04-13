@@ -1,0 +1,113 @@
+<!-- ========================================================================= -->
+<!-- EMPLOYEE_LIST.HTML - Employee List Template -->
+<!-- ========================================================================= -->
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Xodimlar Ro'yxati - Davomat Tizimi{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1>
+            <i class="bi bi-people text-primary"></i>
+            Xodimlar Ro'yxati
+        </h1>
+        <p class="text-muted">
+            Ro'yxatdan o'tgan barcha xodimlar
+        </p>
+    </div>
+    <div class="col-md-4 text-md-end">
+        <a href="{% url 'register_employee' %}" class="btn btn-success btn-lg">
+            <i class="bi bi-person-plus"></i>
+            Yangi xodim
+        </a>
+    </div>
+</div>
+
+<!-- Employee Cards Grid -->
+<div class="row">
+    {% for employee in employees %}
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <!-- Employee photo -->
+                    {% if employee.photo %}
+                    <img src="{{ employee.photo.url }}"
+                         alt="{{ employee.full_name }}"
+                         class="rounded-circle me-3"
+                         style="width: 60px; height: 60px; object-fit: cover;">
+                    {% else %}
+                    <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-3"
+                         style="width: 60px; height: 60px;">
+                        <i class="bi bi-person fs-3"></i>
+                    </div>
+                    {% endif %}
+
+                    <div>
+                        <h5 class="card-title mb-0">{{ employee.full_name }}</h5>
+                        <small class="text-muted">{{ employee.employee_id }}</small>
+                    </div>
+                </div>
+
+                <ul class="list-unstyled mb-0">
+                    {% if employee.department %}
+                    <li>
+                        <i class="bi bi-building text-muted"></i>
+                        {{ employee.department }}
+                    </li>
+                    {% endif %}
+                    {% if employee.position %}
+                    <li>
+                        <i class="bi bi-briefcase text-muted"></i>
+                        {{ employee.position }}
+                    </li>
+                    {% endif %}
+                    {% if employee.email %}
+                    <li>
+                        <i class="bi bi-envelope text-muted"></i>
+                        <a href="mailto:{{ employee.email }}">{{ employee.email }}</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+            <div class="card-footer bg-transparent">
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'employee_detail' employee.employee_id %}"
+                       class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-eye"></i> Ko'rish
+                    </a>
+                    <form action="{% url 'delete_employee' employee.employee_id %}"
+                          method="post"
+                          class="d-inline"
+                          onsubmit="return confirm('{{ employee.full_name }} ni o\'chirishni xohlaysizmi?');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-trash"></i> O'chirish
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <!-- No employees -->
+    <div class="col-12">
+        <div class="alert alert-info text-center py-5">
+            <i class="bi bi-people fs-1 d-block mb-3"></i>
+            <h4>Xodimlar topilmadi</h4>
+            <p class="mb-3">Hozircha ro'yxatdan o'tgan xodimlar yo'q</p>
+            <a href="{% url 'register_employee' %}" class="btn btn-primary">
+                <i class="bi bi-person-plus"></i>
+                Birinchi xodimni qo'shing
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}
